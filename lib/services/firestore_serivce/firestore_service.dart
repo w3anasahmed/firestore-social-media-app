@@ -26,15 +26,14 @@ class FirestoreService {
     });
   }
 
-  Stream<List<Map<String, dynamic>>> getPostStream() {
+  Stream<QuerySnapshot> getPostStream() {
     return firestore
         .collection('posts')
         .orderBy('timeStamp', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return doc.data();
-          }).toList();
-        });
+        .snapshots();
+  }
+
+  Future<void> deletePost(String id) async {
+    await firestore.collection('posts').doc(id).delete();
   }
 }

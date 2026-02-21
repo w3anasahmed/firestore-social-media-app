@@ -57,20 +57,28 @@ class ProfilePage extends StatelessWidget {
                       snapshot.data == null) {
                     return Center(child: Text('no data'));
                   } else {
+                    List postList = snapshot.data!.docs;
                     return ListView.builder(
-                      itemCount: snapshot.data!.length,
+                      itemCount: postList.length,
                       itemBuilder: (context, index) {
-                        String email = snapshot.data![index]['email']
-                            .toString();
-                        String post = snapshot.data![index]['post'].toString();
-                        Timestamp time = snapshot.data![index]['timeStamp'];
-                        DateTime date = time.toDate();
+                        DocumentSnapshot post = postList[index];
+                        String docID = post.id;
 
-                        if (authSerivce.currentUser!.email == email) {
+                        Map<String, dynamic> postData =
+                            post.data() as Map<String, dynamic>;
+
+                        String email = postData['email'];
+                        String postMessage = postData['post'].toString();
+                        Timestamp time = postData['timeStamp'];
+                        DateTime date = time.toDate();
+                        if (email == authSerivce.currentUser!.email) {
                           return CustomListtile(
-                            email: snapshot.data![index]['email'],
-                            post: post,
+                            email: email,
+                            post: postMessage,
                             timestamp: "${date.day}.${date.month}.${date.year}",
+
+                            deleteable: true,
+                            docID: docID,
                           );
                         } else {
                           return Container();

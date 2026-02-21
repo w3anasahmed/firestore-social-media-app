@@ -19,7 +19,9 @@ class HomePage extends StatelessWidget {
   }
 
   void onPressPost() {
-    firestore.addPost(post.text, authSerivce.currentUser!.email.toString());
+    if (post.text != '' || post.text.isNotEmpty) {
+      firestore.addPost(post.text, authSerivce.currentUser!.email.toString());
+    }
     post.clear();
   }
 
@@ -67,18 +69,27 @@ class HomePage extends StatelessWidget {
                       snapshot.data == null) {
                     return Center(child: Text('no data'));
                   } else {
+                    List postList = snapshot.data!.docs;
                     return ListView.builder(
-                      itemCount: snapshot.data!.length,
+                      itemCount: postList.length,
                       itemBuilder: (context, index) {
-                        String email = snapshot.data![index]['email']
-                            .toString();
-                        String post = snapshot.data![index]['post'].toString();
-                        Timestamp time = snapshot.data![index]['timeStamp'];
+                        DocumentSnapshot post = postList[index];
+
+                        String docID = post.id;
+
+                        Map<String, dynamic> postData =
+                            post.data() as Map<String, dynamic>;
+
+                        String email = postData['email'];
+                        String postMessage = postData['post'].toString();
+                        Timestamp time = postData['timeStamp'];
                         DateTime date = time.toDate();
                         return CustomListtile(
                           email: email,
-                          post: post,
+                          post: postMessage,
                           timestamp: "${date.day}.${date.month}.${date.year}",
+                          deleteable: false,
+                          docID: docID,
                         );
                       },
                     );
